@@ -1219,6 +1219,9 @@ class Bottle {
 
     const segments = 24;
     const latheGeo = new THREE.LatheGeometry(points, segments);
+    // Rotate geometry from Y-up to Z-up (game uses Z as vertical)
+    const rotMatrix = new THREE.Matrix4().makeRotationX(-Math.PI / 2);
+    latheGeo.applyMatrix(rotMatrix);
 
     // Load the label texture from the sauce image
     const labelTexture = new THREE.TextureLoader().load('/sauce-label.png');
@@ -1253,27 +1256,29 @@ class Bottle {
     const bodyMesh = new THREE.Mesh(latheGeo, greenMat);
     this.bottle.add(bodyMesh);
 
+    // Helper: rotate a geometry from Y-up to Z-up
+    const rotateGeo = (geo) => { geo.applyMatrix(rotMatrix); return geo; };
+
     // Label band — cylinder wrapped around the waist area
-    const labelGeo = new THREE.CylinderGeometry(0.195, 0.26, 0.36, segments, 1, true);
+    const labelGeo = rotateGeo(new THREE.CylinderGeometry(0.195, 0.26, 0.36, segments, 1, true));
     const labelMesh = new THREE.Mesh(labelGeo, labelMat);
-    labelMesh.position.y = 0.52;
+    labelMesh.position.z = 0.52;
     this.bottle.add(labelMesh);
 
     // Cap (bottom cylinder)
-    const capGeo = new THREE.CylinderGeometry(0.19, 0.20, 0.13, segments);
+    const capGeo = rotateGeo(new THREE.CylinderGeometry(0.19, 0.20, 0.13, segments));
     const capMesh = new THREE.Mesh(capGeo, capMat);
-    capMesh.position.y = 0.06;
+    capMesh.position.z = 0.06;
     this.bottle.add(capMesh);
 
     // Cap rim ring
     const rimGeo = new THREE.TorusGeometry(0.19, 0.015, 8, segments);
     const rimMesh = new THREE.Mesh(rimGeo, capMat);
-    rimMesh.rotation.x = Math.PI / 2;
-    rimMesh.position.y = 0.12;
+    rimMesh.position.z = 0.12;
     this.bottle.add(rimMesh);
 
     // Specular highlight sphere on top for glossy look
-    const glossGeo = new THREE.SphereGeometry(0.12, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2);
+    const glossGeo = rotateGeo(new THREE.SphereGeometry(0.12, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2));
     const glossMat = new THREE.MeshPhongMaterial({
       color: 0x99BB55,
       specular: 0xFFFFFF,
@@ -1282,23 +1287,22 @@ class Bottle {
       opacity: 0.4,
     });
     const glossMesh = new THREE.Mesh(glossGeo, glossMat);
-    glossMesh.position.y = 0.96;
+    glossMesh.position.z = 0.96;
     this.bottle.add(glossMesh);
 
     // Dark label background band (the dark rounded rectangle area)
-    const darkLabelGeo = new THREE.CylinderGeometry(0.197, 0.255, 0.28, segments, 1, true);
+    const darkLabelGeo = rotateGeo(new THREE.CylinderGeometry(0.197, 0.255, 0.28, segments, 1, true));
     const darkLabelMat = new THREE.MeshPhongMaterial({
       color: 0x2A3320,
       specular: 0x111111,
       shininess: 20,
     });
     const darkLabelMesh = new THREE.Mesh(darkLabelGeo, darkLabelMat);
-    darkLabelMesh.position.y = 0.53;
+    darkLabelMesh.position.z = 0.53;
     this.bottle.add(darkLabelMesh);
 
-    // Scale to match original bottle size and rotate Y-up to Z-up
+    // Scale to match original bottle size (geometry already Z-up)
     this.bottle.scale.set(0.5, 0.5, 0.5);
-    this.bottle.rotation.x = Math.PI / 2; // Y-up to Z-up
 
     this.mesh.add(this.bottle);
     this.mesh.position.z = 1;

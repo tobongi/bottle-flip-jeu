@@ -1184,124 +1184,103 @@ class Bottle {
 
   constructor()  {
     // === Build 3D "Sauce PB Verte" squeeze bottle ===
-    // Profile points for LatheGeometry (x=radius, y=height)
-    // Shape: white cap at bottom, green body with waist, rounded top
-    const points = [];
-    // Cap base (bottom) — flat white cap
-    points.push(new THREE.Vector2(0.18, 0));
-    points.push(new THREE.Vector2(0.20, 0.02));
-    points.push(new THREE.Vector2(0.20, 0.10));
-    points.push(new THREE.Vector2(0.18, 0.12));
-    // Neck from cap to body
-    points.push(new THREE.Vector2(0.16, 0.14));
-    points.push(new THREE.Vector2(0.15, 0.16));
-    // Body lower curve (widening)
-    points.push(new THREE.Vector2(0.17, 0.22));
-    points.push(new THREE.Vector2(0.22, 0.30));
-    points.push(new THREE.Vector2(0.25, 0.38));
-    // Waist (squeeze point) — narrower section
-    points.push(new THREE.Vector2(0.20, 0.48));
-    points.push(new THREE.Vector2(0.18, 0.52));
-    points.push(new THREE.Vector2(0.18, 0.56));
-    // Upper body (wider, sauce area)
-    points.push(new THREE.Vector2(0.20, 0.60));
-    points.push(new THREE.Vector2(0.24, 0.66));
-    points.push(new THREE.Vector2(0.26, 0.74));
-    points.push(new THREE.Vector2(0.27, 0.82));
-    points.push(new THREE.Vector2(0.27, 0.88));
-    // Rounded top (dome)
-    points.push(new THREE.Vector2(0.26, 0.92));
-    points.push(new THREE.Vector2(0.24, 0.95));
-    points.push(new THREE.Vector2(0.20, 0.98));
-    points.push(new THREE.Vector2(0.14, 1.00));
-    points.push(new THREE.Vector2(0.06, 1.01));
-    points.push(new THREE.Vector2(0.00, 1.02));
-
-    const segments = 24;
-    const latheGeo = new THREE.LatheGeometry(points, segments);
-    // Rotate geometry from Y-up to Z-up (game uses Z as vertical)
+    // Reference: upside-down squeeze bottle — white cap at BOTTOM,
+    // body widens, narrow waist, upper bulge, rounded dome on top
+    const segments = 32;
     const rotMatrix = new THREE.Matrix4().makeRotationX(-Math.PI / 2);
-    latheGeo.applyMatrix(rotMatrix);
-
-    // Load the label texture from the sauce image
-    const labelTexture = new THREE.TextureLoader().load('/sauce-label.png');
-    labelTexture.wrapS = THREE.RepeatWrapping;
-    labelTexture.wrapT = THREE.ClampToEdgeWrapping;
-    labelTexture.repeat.set(1, 1);
-    labelTexture.offset.set(0, 0.05);
-
-    // Green sauce body material
-    const greenMat = new THREE.MeshPhongMaterial({
-      color: 0x8BA847,
-      specular: 0x333333,
-      shininess: 60,
-      transparent: false,
-    });
-
-    // Label material with the actual sauce image
-    const labelMat = new THREE.MeshPhongMaterial({
-      map: labelTexture,
-      specular: 0x222222,
-      shininess: 40,
-    });
-
-    // White cap material
-    const capMat = new THREE.MeshPhongMaterial({
-      color: 0xF5F5F0,
-      specular: 0xFFFFFF,
-      shininess: 80,
-    });
-
-    // Main body (green sauce)
-    const bodyMesh = new THREE.Mesh(latheGeo, greenMat);
-    this.bottle.add(bodyMesh);
-
-    // Helper: rotate a geometry from Y-up to Z-up
     const rotateGeo = (geo) => { geo.applyMatrix(rotMatrix); return geo; };
 
-    // Label band — cylinder wrapped around the waist area
-    const labelGeo = rotateGeo(new THREE.CylinderGeometry(0.195, 0.26, 0.36, segments, 1, true));
-    const labelMesh = new THREE.Mesh(labelGeo, labelMat);
-    labelMesh.position.z = 0.52;
-    this.bottle.add(labelMesh);
+    // --- Green body (main silhouette via LatheGeometry) ---
+    const bodyPts = [];
+    // Bottom: narrow neck just above the cap (z=0 is bottom)
+    bodyPts.push(new THREE.Vector2(0.00, 0.00));
+    bodyPts.push(new THREE.Vector2(0.13, 0.00));
+    bodyPts.push(new THREE.Vector2(0.14, 0.02));
+    // Lower body expands
+    bodyPts.push(new THREE.Vector2(0.16, 0.06));
+    bodyPts.push(new THREE.Vector2(0.20, 0.12));
+    bodyPts.push(new THREE.Vector2(0.24, 0.20));
+    bodyPts.push(new THREE.Vector2(0.26, 0.28));
+    // Waist (narrow squeeze point) — around 35-45% height
+    bodyPts.push(new THREE.Vector2(0.23, 0.34));
+    bodyPts.push(new THREE.Vector2(0.20, 0.38));
+    bodyPts.push(new THREE.Vector2(0.19, 0.42));
+    bodyPts.push(new THREE.Vector2(0.20, 0.46));
+    // Upper bulge (widest part with label)
+    bodyPts.push(new THREE.Vector2(0.23, 0.52));
+    bodyPts.push(new THREE.Vector2(0.27, 0.60));
+    bodyPts.push(new THREE.Vector2(0.29, 0.68));
+    bodyPts.push(new THREE.Vector2(0.30, 0.76));
+    bodyPts.push(new THREE.Vector2(0.29, 0.82));
+    // Rounded dome top
+    bodyPts.push(new THREE.Vector2(0.27, 0.86));
+    bodyPts.push(new THREE.Vector2(0.24, 0.90));
+    bodyPts.push(new THREE.Vector2(0.19, 0.93));
+    bodyPts.push(new THREE.Vector2(0.13, 0.96));
+    bodyPts.push(new THREE.Vector2(0.06, 0.98));
+    bodyPts.push(new THREE.Vector2(0.00, 0.99));
 
-    // Cap (bottom cylinder)
-    const capGeo = rotateGeo(new THREE.CylinderGeometry(0.19, 0.20, 0.13, segments));
-    const capMesh = new THREE.Mesh(capGeo, capMat);
-    capMesh.position.z = 0.06;
-    this.bottle.add(capMesh);
+    const bodyGeo = new THREE.LatheGeometry(bodyPts, segments);
+    rotateGeo(bodyGeo);
 
-    // Cap rim ring
-    const rimGeo = new THREE.TorusGeometry(0.19, 0.015, 8, segments);
-    const rimMesh = new THREE.Mesh(rimGeo, capMat);
-    rimMesh.position.z = 0.12;
-    this.bottle.add(rimMesh);
-
-    // Specular highlight sphere on top for glossy look
-    const glossGeo = rotateGeo(new THREE.SphereGeometry(0.12, 16, 8, 0, Math.PI * 2, 0, Math.PI / 2));
-    const glossMat = new THREE.MeshPhongMaterial({
-      color: 0x99BB55,
-      specular: 0xFFFFFF,
-      shininess: 100,
-      transparent: true,
-      opacity: 0.4,
+    const greenMat = new THREE.MeshPhongMaterial({
+      color: 0x8BA847,
+      specular: 0x444422,
+      shininess: 50,
     });
-    const glossMesh = new THREE.Mesh(glossGeo, glossMat);
-    glossMesh.position.z = 0.96;
-    this.bottle.add(glossMesh);
+    this.bottle.add(new THREE.Mesh(bodyGeo, greenMat));
 
-    // Dark label background band (the dark rounded rectangle area)
-    const darkLabelGeo = rotateGeo(new THREE.CylinderGeometry(0.197, 0.255, 0.28, segments, 1, true));
+    // --- White cap at the very bottom ---
+    const capPts = [];
+    capPts.push(new THREE.Vector2(0.00, -0.18));
+    capPts.push(new THREE.Vector2(0.16, -0.18));
+    capPts.push(new THREE.Vector2(0.17, -0.16));
+    capPts.push(new THREE.Vector2(0.17, -0.04));
+    capPts.push(new THREE.Vector2(0.16, -0.02));
+    capPts.push(new THREE.Vector2(0.14, 0.00));
+    capPts.push(new THREE.Vector2(0.13, 0.00));
+
+    const capGeo = new THREE.LatheGeometry(capPts, segments);
+    rotateGeo(capGeo);
+    const capMat = new THREE.MeshPhongMaterial({
+      color: 0xF0EDE8,
+      specular: 0xFFFFFF,
+      shininess: 70,
+    });
+    this.bottle.add(new THREE.Mesh(capGeo, capMat));
+
+    // --- Dark label band (wraps around upper bulge, z=0.52 to 0.84) ---
+    const labelBandGeo = rotateGeo(
+      new THREE.CylinderGeometry(0.295, 0.275, 0.30, segments, 1, true)
+    );
     const darkLabelMat = new THREE.MeshPhongMaterial({
       color: 0x2A3320,
       specular: 0x111111,
       shininess: 20,
     });
-    const darkLabelMesh = new THREE.Mesh(darkLabelGeo, darkLabelMat);
-    darkLabelMesh.position.z = 0.53;
-    this.bottle.add(darkLabelMesh);
+    const labelBand = new THREE.Mesh(labelBandGeo, darkLabelMat);
+    labelBand.position.z = 0.68;
+    this.bottle.add(labelBand);
 
-    // Scale to match original bottle size (geometry already Z-up)
+    // --- Label image overlay (slightly outside the dark band) ---
+    const labelTexture = new THREE.TextureLoader().load('/sauce-label.png');
+    labelTexture.wrapS = THREE.RepeatWrapping;
+    labelTexture.wrapT = THREE.ClampToEdgeWrapping;
+
+    const labelGeo = rotateGeo(
+      new THREE.CylinderGeometry(0.298, 0.278, 0.28, segments, 1, true)
+    );
+    const labelMat = new THREE.MeshPhongMaterial({
+      map: labelTexture,
+      specular: 0x222222,
+      shininess: 30,
+      transparent: true,
+    });
+    const labelMesh = new THREE.Mesh(labelGeo, labelMat);
+    labelMesh.position.z = 0.68;
+    this.bottle.add(labelMesh);
+
+    // Scale bottle to game size
     this.bottle.scale.set(0.5, 0.5, 0.5);
 
     this.mesh.add(this.bottle);

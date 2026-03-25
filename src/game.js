@@ -1249,34 +1249,38 @@ class Bottle {
     });
     this.bottle.add(new THREE.Mesh(capGeo, capMat));
 
-    // --- Dark label band (wraps around upper bulge, z=0.52 to 0.84) ---
-    const labelBandGeo = rotateGeo(
-      new THREE.CylinderGeometry(0.295, 0.275, 0.30, segments, 1, true)
+    // --- Dark label on front face only (partial arc ~120deg) ---
+    const labelArc = Math.PI * 0.65; // ~117 degrees
+    const labelStart = -labelArc / 2; // centered on front
+    const darkLabelGeo = rotateGeo(
+      new THREE.CylinderGeometry(0.302, 0.282, 0.32, 20, 1, true, labelStart, labelArc)
     );
     const darkLabelMat = new THREE.MeshPhongMaterial({
       color: 0x2A3320,
       specular: 0x111111,
       shininess: 20,
+      side: THREE.DoubleSide,
     });
-    const labelBand = new THREE.Mesh(labelBandGeo, darkLabelMat);
+    const labelBand = new THREE.Mesh(darkLabelGeo, darkLabelMat);
     labelBand.position.z = 0.68;
     this.bottle.add(labelBand);
 
-    // --- Label image overlay (slightly outside the dark band) ---
+    // --- Label image on front face (slightly outside dark background) ---
     const labelTexture = new THREE.TextureLoader().load('/sauce-label.png');
-    labelTexture.wrapS = THREE.RepeatWrapping;
+    labelTexture.wrapS = THREE.ClampToEdgeWrapping;
     labelTexture.wrapT = THREE.ClampToEdgeWrapping;
 
-    const labelGeo = rotateGeo(
-      new THREE.CylinderGeometry(0.298, 0.278, 0.28, segments, 1, true)
+    const labelImgGeo = rotateGeo(
+      new THREE.CylinderGeometry(0.305, 0.285, 0.28, 20, 1, true, labelStart, labelArc)
     );
     const labelMat = new THREE.MeshPhongMaterial({
       map: labelTexture,
       specular: 0x222222,
       shininess: 30,
       transparent: true,
+      side: THREE.DoubleSide,
     });
-    const labelMesh = new THREE.Mesh(labelGeo, labelMat);
+    const labelMesh = new THREE.Mesh(labelImgGeo, labelMat);
     labelMesh.position.z = 0.68;
     this.bottle.add(labelMesh);
 

@@ -1184,105 +1184,88 @@ class Bottle {
 
   constructor()  {
     // === Build 3D "Sauce PB Verte" squeeze bottle ===
-    // Reference: upside-down squeeze bottle — white cap at BOTTOM,
-    // body widens, narrow waist, upper bulge, rounded dome on top
+    // The label is PART of the body surface — not a separate floating piece.
+    // We split the body into 3 LatheGeometry sections with different materials.
     const segments = 32;
     const rotMatrix = new THREE.Matrix4().makeRotationX(-Math.PI / 2);
     const rotateGeo = (geo) => { geo.applyMatrix(rotMatrix); return geo; };
 
-    // --- Green body (main silhouette via LatheGeometry) ---
-    const bodyPts = [];
-    // Bottom: narrow neck just above the cap (z=0 is bottom)
-    bodyPts.push(new THREE.Vector2(0.00, 0.00));
-    bodyPts.push(new THREE.Vector2(0.13, 0.00));
-    bodyPts.push(new THREE.Vector2(0.14, 0.02));
-    // Lower body expands
-    bodyPts.push(new THREE.Vector2(0.16, 0.06));
-    bodyPts.push(new THREE.Vector2(0.20, 0.12));
-    bodyPts.push(new THREE.Vector2(0.24, 0.20));
-    bodyPts.push(new THREE.Vector2(0.26, 0.28));
-    // Waist (narrow squeeze point) — around 35-45% height
-    bodyPts.push(new THREE.Vector2(0.23, 0.34));
-    bodyPts.push(new THREE.Vector2(0.20, 0.38));
-    bodyPts.push(new THREE.Vector2(0.19, 0.42));
-    bodyPts.push(new THREE.Vector2(0.20, 0.46));
-    // Upper bulge (widest part with label)
-    bodyPts.push(new THREE.Vector2(0.23, 0.52));
-    bodyPts.push(new THREE.Vector2(0.27, 0.60));
-    bodyPts.push(new THREE.Vector2(0.29, 0.68));
-    bodyPts.push(new THREE.Vector2(0.30, 0.76));
-    bodyPts.push(new THREE.Vector2(0.29, 0.82));
-    // Rounded dome top
-    bodyPts.push(new THREE.Vector2(0.27, 0.86));
-    bodyPts.push(new THREE.Vector2(0.24, 0.90));
-    bodyPts.push(new THREE.Vector2(0.19, 0.93));
-    bodyPts.push(new THREE.Vector2(0.13, 0.96));
-    bodyPts.push(new THREE.Vector2(0.06, 0.98));
-    bodyPts.push(new THREE.Vector2(0.00, 0.99));
-
-    const bodyGeo = new THREE.LatheGeometry(bodyPts, segments);
-    rotateGeo(bodyGeo);
-
     const greenMat = new THREE.MeshPhongMaterial({
-      color: 0x8BA847,
-      specular: 0x444422,
-      shininess: 50,
+      color: 0x8BA847, specular: 0x444422, shininess: 50,
     });
-    this.bottle.add(new THREE.Mesh(bodyGeo, greenMat));
-
-    // --- White cap at the very bottom ---
-    const capPts = [];
-    capPts.push(new THREE.Vector2(0.00, -0.18));
-    capPts.push(new THREE.Vector2(0.16, -0.18));
-    capPts.push(new THREE.Vector2(0.17, -0.16));
-    capPts.push(new THREE.Vector2(0.17, -0.04));
-    capPts.push(new THREE.Vector2(0.16, -0.02));
-    capPts.push(new THREE.Vector2(0.14, 0.00));
-    capPts.push(new THREE.Vector2(0.13, 0.00));
-
-    const capGeo = new THREE.LatheGeometry(capPts, segments);
-    rotateGeo(capGeo);
-    const capMat = new THREE.MeshPhongMaterial({
-      color: 0xF0EDE8,
-      specular: 0xFFFFFF,
-      shininess: 70,
-    });
-    this.bottle.add(new THREE.Mesh(capGeo, capMat));
-
-    // --- Dark label on front face only (partial arc ~120deg) ---
-    const labelArc = Math.PI * 0.65; // ~117 degrees
-    const labelStart = -labelArc / 2; // centered on front
-    const darkLabelGeo = rotateGeo(
-      new THREE.CylinderGeometry(0.302, 0.282, 0.32, 20, 1, true, labelStart, labelArc)
-    );
     const darkLabelMat = new THREE.MeshPhongMaterial({
-      color: 0x2A3320,
-      specular: 0x111111,
-      shininess: 20,
-      side: THREE.DoubleSide,
+      color: 0x2A3320, specular: 0x111111, shininess: 20,
     });
-    const labelBand = new THREE.Mesh(darkLabelGeo, darkLabelMat);
-    labelBand.position.z = 0.68;
-    this.bottle.add(labelBand);
+    const capMat = new THREE.MeshPhongMaterial({
+      color: 0xF0EDE8, specular: 0xFFFFFF, shininess: 70,
+    });
 
-    // --- Label image on front face (slightly outside dark background) ---
+    // --- White cap at bottom (y = -0.18 to 0.00) ---
+    const capPts = [
+      new THREE.Vector2(0.00, -0.18),
+      new THREE.Vector2(0.16, -0.18),
+      new THREE.Vector2(0.17, -0.16),
+      new THREE.Vector2(0.17, -0.04),
+      new THREE.Vector2(0.16, -0.02),
+      new THREE.Vector2(0.14, 0.00),
+      new THREE.Vector2(0.13, 0.00),
+    ];
+    this.bottle.add(new THREE.Mesh(rotateGeo(new THREE.LatheGeometry(capPts, segments)), capMat));
+
+    // --- Green lower body (y = 0.00 to 0.52) ---
+    const lowerPts = [
+      new THREE.Vector2(0.13, 0.00),
+      new THREE.Vector2(0.14, 0.02),
+      new THREE.Vector2(0.16, 0.06),
+      new THREE.Vector2(0.20, 0.12),
+      new THREE.Vector2(0.24, 0.20),
+      new THREE.Vector2(0.26, 0.28),
+      new THREE.Vector2(0.23, 0.34),
+      new THREE.Vector2(0.20, 0.38),
+      new THREE.Vector2(0.19, 0.42),
+      new THREE.Vector2(0.20, 0.46),
+      new THREE.Vector2(0.23, 0.52),
+    ];
+    this.bottle.add(new THREE.Mesh(rotateGeo(new THREE.LatheGeometry(lowerPts, segments)), greenMat));
+
+    // --- Dark label section (y = 0.52 to 0.82) — this IS the body surface ---
+    const labelPts = [
+      new THREE.Vector2(0.23, 0.52),
+      new THREE.Vector2(0.27, 0.60),
+      new THREE.Vector2(0.29, 0.68),
+      new THREE.Vector2(0.30, 0.76),
+      new THREE.Vector2(0.29, 0.82),
+    ];
+    this.bottle.add(new THREE.Mesh(rotateGeo(new THREE.LatheGeometry(labelPts, segments)), darkLabelMat));
+
+    // --- Label image overlay (just barely outside the dark section surface) ---
     const labelTexture = new THREE.TextureLoader().load('/sauce-label.png');
     labelTexture.wrapS = THREE.ClampToEdgeWrapping;
     labelTexture.wrapT = THREE.ClampToEdgeWrapping;
-
-    const labelImgGeo = rotateGeo(
-      new THREE.CylinderGeometry(0.305, 0.285, 0.28, 20, 1, true, labelStart, labelArc)
-    );
+    const labelImgPts = [
+      new THREE.Vector2(0.232, 0.52),
+      new THREE.Vector2(0.272, 0.60),
+      new THREE.Vector2(0.292, 0.68),
+      new THREE.Vector2(0.302, 0.76),
+      new THREE.Vector2(0.292, 0.82),
+    ];
     const labelMat = new THREE.MeshPhongMaterial({
-      map: labelTexture,
-      specular: 0x222222,
-      shininess: 30,
-      transparent: true,
-      side: THREE.DoubleSide,
+      map: labelTexture, specular: 0x222222, shininess: 30,
+      transparent: true, side: THREE.DoubleSide,
     });
-    const labelMesh = new THREE.Mesh(labelImgGeo, labelMat);
-    labelMesh.position.z = 0.68;
-    this.bottle.add(labelMesh);
+    this.bottle.add(new THREE.Mesh(rotateGeo(new THREE.LatheGeometry(labelImgPts, segments)), labelMat));
+
+    // --- Green upper dome (y = 0.82 to 0.99) ---
+    const upperPts = [
+      new THREE.Vector2(0.29, 0.82),
+      new THREE.Vector2(0.27, 0.86),
+      new THREE.Vector2(0.24, 0.90),
+      new THREE.Vector2(0.19, 0.93),
+      new THREE.Vector2(0.13, 0.96),
+      new THREE.Vector2(0.06, 0.98),
+      new THREE.Vector2(0.00, 0.99),
+    ];
+    this.bottle.add(new THREE.Mesh(rotateGeo(new THREE.LatheGeometry(upperPts, segments)), greenMat));
 
     // Scale bottle to game size
     this.bottle.scale.set(0.5, 0.5, 0.5);

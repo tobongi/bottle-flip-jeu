@@ -1,0 +1,8 @@
+Model Information:
+* title:	Restaurant in the evening
+* source:	https://sketchfab.com/3d-models/restaurant-in-the-evening-42b57039275c4da0941a2706f617f95a
+* author:	katydid (https://sketchfab.com/Katydid.)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

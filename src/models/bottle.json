@@ -57,8 +57,8 @@
 		{
 			"uuid": "B66CF6B1-4689-4738-82B0-50861D300E64",
 			"type": "MeshLambertMaterial",
-			"color": 7981337,
-			"emissive": 2236962,
+			"color": 9109504,
+			"emissive": 3342336,
 			"depthFunc": 3,
 			"depthTest": true,
 			"depthWrite": true
@@ -66,8 +66,8 @@
 		{
 			"uuid": "12536C28-8D65-43AD-83F3-020582A48119",
 			"type": "MeshLambertMaterial",
-			"color": 16777215,
-			"emissive": 2236962,
+			"color": 13893632,
+			"emissive": 3342336,
 			"depthFunc": 3,
 			"depthTest": true,
 			"depthWrite": true

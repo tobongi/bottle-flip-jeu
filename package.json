@@ -1,7 +1,6 @@
 {
   "name": "game",
-  "homepage": "https://wuzekang.github.io/bottle-flip/",
-  "proxy": "http://localhost",
+  "homepage": ".",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -132,5 +131,9 @@
     "babel-plugin-import": "^1.6.3",
     "babel-plugin-transform-decorators-legacy": "^1.3.4",
     "gh-pages": "^1.1.0"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not op_mini all"
+  ]
 }
